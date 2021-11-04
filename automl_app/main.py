@@ -2,6 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as stc
 
 from eda import prep_eda
+from dprep import prep_data
 
 # EDA Pkgs
 import pandas as pd
@@ -20,7 +21,8 @@ from utils import (
 )
 
 
-@st.cache(persist=True)
+@st.cache(persist=True, allow_output_mutation=False)
+# @st.cache(allow_output_mutation=False)
 def explore_data(file):
     df = pd.read_csv(file)
     return df
@@ -41,7 +43,13 @@ def main():
     + Feature Engineering 
     + Hyperparameter Tunning
     + Model Building 
-    """)
+    
+    ## Please Select a Dataset From Your Directory and Follow through the Steps in the Sidebar
+    
+    """
+    )
+
+
 
     # sidebar controls and stuff
     st.sidebar.title('App Controls')
@@ -89,8 +97,8 @@ def main():
 
         # task selection
         st.sidebar.subheader('Select the Task You want to Perform')
-        menu = ['EDA Only', 'Models Only', 'EDA&Models']
-        choice = st.sidebar.selectbox("Please Select the Task You Wanna Perform on Dataset", menu)
+        menu = ['Select', 'EDA Only', 'Models Only', 'EDA&Models']
+        choice = st.sidebar.selectbox("Please Select the Task You Wanna Perform on Dataset", menu,0) # default_value= index 0)
 
         # if st.sidebar.button('EDA Only'):
         if choice =='EDA Only':
@@ -101,6 +109,9 @@ def main():
         # if st.sidebar.button('Models Only'):
         if choice == 'Models Only':
             st.title('We are Building Models Only no EDA')
+            prep_data(df, target_variable)
+
+
         # if st.sidebar.button('EDA&Models'):
         if choice == 'EDA&Models':
 

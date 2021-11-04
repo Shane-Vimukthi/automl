@@ -22,7 +22,11 @@ def prep_eda(df, target_variable, target_type):
 
     # show the dataset
     st.subheader('View the Data Frame')
-    st.dataframe(df)
+    # st.dataframe(df.head(250))
+    if df.shape[0]>250:
+        st.dataframe(df.sample(n=250))
+    else:
+        st.dataframe(df)
 
     # view the head and tail of the dataset
     #read the head and tail of the dataset
@@ -71,7 +75,7 @@ def prep_eda(df, target_variable, target_type):
     # Get the null list
     st.subheader('\n\n Dataset Null Availability ColumnWise')
     null_df = pd.DataFrame(df.isnull().sum(), columns=['null_count'])
-    # null_df.head(15)
+    # null_df.head(15) add the null percentage too
     st.dataframe(null_df)
 
     # Get the null Graph
@@ -95,7 +99,7 @@ def prep_eda(df, target_variable, target_type):
     # plot some graphs of target col
     st.subheader('\n\n Target Column Plot')
     if df[target_variable].dtypes != 'object':
-        fig, axes = plt.subplots(3, 1, figsize=(6, 10))
+        fig, axes = plt.subplots(1, 3, figsize=(25, 8))
 
         sns.histplot(x=target_variable, data=df, ax=axes[0], bins=50)
         sns.kdeplot(x=target_variable, data=df, ax=axes[1], fill=True)
@@ -105,11 +109,12 @@ def prep_eda(df, target_variable, target_type):
 
     else:
         # Categorical target Variable
-        fig = plt.figure()
-        df[target_variable].value_counts()[::-1].plot(kind='pie', title=target_variable, autopct='%.0f', fontsize=10)
-        st.pyplot(fig)
-        fig = plt.figure()
-        sns.histplot(x=target_variable, data=df, bins=50)
+        fig, axes = plt.subplots(1, 2, figsize=(14, 7))
+        # fig = plt.figure()
+        df[target_variable].value_counts()[::-1].plot(kind='pie', title=target_variable, autopct='%.0f', fontsize=10, ax=axes[0])
+        # st.pyplot(fig)
+        # fig = plt.figure()
+        sns.histplot(x=target_variable, data=df, bins=50, ax=axes[1])
         st.pyplot(fig)
 
     # Statistical Plots
@@ -143,9 +148,9 @@ def prep_eda(df, target_variable, target_type):
     st.caption('*If the Target Variable is correlated with itself please ignore')
 
     # plot the datset
-    st.subheader('\n\n Pairplot For all Numerical Features')
-    fig = sns.pairplot(df, hue= target_variable)
-    st.pyplot(fig)
+    # st.subheader('\n\n Pairplot For all Numerical Features')
+    # fig = sns.pairplot(df, hue= target_variable)
+    # st.pyplot(fig)
 
 
     # line and area plot of the all numericals
