@@ -1,44 +1,19 @@
 <class 'pandas.core.frame.DataFrame'>
 RangeIndex: 891 entries, 0 to 890
-Data columns (total 37 columns):
- #   Column                                                Non-Null Count  Dtype  
----  ------                                                --------------  -----  
- 0   PassengerId                                           891 non-null    int64  
- 1   Survived                                              891 non-null    int64  
- 2   Pclass                                                891 non-null    int64  
- 3   Name                                                  891 non-null    object 
- 4   Sex                                                   891 non-null    object 
- 5   SibSp                                                 891 non-null    int64  
- 6   Parch                                                 891 non-null    int64  
- 7   Ticket                                                891 non-null    object 
- 8   Fare                                                  891 non-null    float64
- 9   SibSp_num_cols_skewed_log                             891 non-null    float64
- 10  Parch_num_cols_skewed_log                             891 non-null    float64
- 11  Fare_num_cols_skewed_log                              891 non-null    float64
- 12  SibSp_num_cols_skewed_sqr                             891 non-null    float64
- 13  Parch_num_cols_skewed_sqr                             891 non-null    float64
- 14  Fare_num_cols_skewed_sqr                              891 non-null    float64
- 15  SibSp_num_cols_skewed_log_num_cols_norm_outliers_cap  891 non-null    float64
- 16  Parch_num_cols_skewed_log_num_cols_norm_outliers_cap  891 non-null    float64
- 17  Fare_num_cols_skewed_log_num_cols_norm_outliers_cap   891 non-null    float64
- 18  SibSp_num_cols_skewed_sqr_num_cols_norm_outliers_cap  891 non-null    float64
- 19  Parch_num_cols_skewed_sqr_num_cols_norm_outliers_cap  891 non-null    float64
- 20  Fare_num_cols_skewed_sqr_num_cols_norm_outliers_cap   891 non-null    float64
- 21  SibSp_num_cols_skewed_outliers_cap                    891 non-null    float64
- 22  Parch_num_cols_skewed_outliers_cap                    891 non-null    float64
- 23  Fare_num_cols_skewed_outliers_cap                     891 non-null    float64
- 24  Cabin_to_del_null_binary                              891 non-null    int64  
- 25  Embarked_cat_cols_obj_null_binary                     891 non-null    int64  
- 26  Embarked_cat_cols_obj_null_mode                       889 non-null    object 
- 27  Embarked_cat_cols_obj_null_extreme                    891 non-null    object 
- 28  Age_null_binary                                       891 non-null    int64  
- 29  Age_null_mode                                         891 non-null    float64
- 30  Age_median                                            891 non-null    float64
- 31  Age_extreme                                           891 non-null    float64
- 32  Age_num_cols_norm_outliers_cap_null_binary            891 non-null    int64  
- 33  Age_num_cols_norm_outliers_cap_null_mode              891 non-null    float64
- 34  Age_num_cols_norm_outliers_cap_median                 891 non-null    float64
- 35  Age_num_cols_norm_outliers_cap_extreme                891 non-null    float64
- 36  Embarked_cat_cols_obj_null_binary_label               891 non-null    int64  
-dtypes: float64(22), int64(10), object(5)
-memory usage: 257.7+ KB
+Data columns (total 12 columns):
+ #   Column       Non-Null Count  Dtype  
+---  ------       --------------  -----  
+ 0   PassengerId  891 non-null    int64  
+ 1   Survived     891 non-null    int64  
+ 2   Pclass       891 non-null    int64  
+ 3   Name         891 non-null    object 
+ 4   Sex          891 non-null    object 
+ 5   Age          714 non-null    float64
+ 6   SibSp        891 non-null    int64  
+ 7   Parch        891 non-null    int64  
+ 8   Ticket       891 non-null    object 
+ 9   Fare         891 non-null    float64
+ 10  Cabin        204 non-null    object 
+ 11  Embarked     889 non-null    object 
+dtypes: float64(2), int64(5), object(5)
+memory usage: 83.7+ KB

@@ -1,5 +1,11 @@
 import warnings
-
+### importing lazypredict library
+import lazypredict
+### importing LazyClassifier for classification problem
+from lazypredict.Supervised import LazyClassifier
+from lazypredict.Supervised import LazyRegressor
+# from lazypredict.Supervised import LazyClassifier
+#
 import streamlit as st
 import streamlit.components.v1 as stc
 
@@ -17,6 +23,7 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 import category_encoders as ce
 import os
 from collections import defaultdict
+from sklearn.model_selection import train_test_split
 
 
 import seaborn as sns
@@ -57,6 +64,27 @@ def cross_val(target_type, y_true, y_pred):
 
 
 
+def model_lazy_pred(df,target_variable, target_type):
 
-def model_simple(df, target_type):
-    pass
+    # do for the classification using for custom or one dataset so the problem is over
+    y_data = df[target_variable]
+    X_data = df.drop([target_variable], axis=1)
+    X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, test_size=.3, random_state=123)
+
+    if target_type == str('Multi-Label Classification') :
+        clf = LazyClassifier(verbose=0, ignore_warnings=True, custom_metric=None)
+        models, predictions = clf.fit(X_train, X_test, y_train, y_test)
+    elif target_type == str('Regression'):
+        reg = LazyRegressor(verbose=0, ignore_warnings=True, custom_metric=None)
+        models, predictions = reg.fit(X_train, X_test, y_train, y_test)
+    elif target_type == str('Binary Classification') :
+        clf = LazyClassifier(verbose=0, ignore_warnings=True, custom_metric=None)
+        models, predictions = clf.fit(X_train, X_test, y_train, y_test)
+
+
+    # convert the datatype of the target variable
+
+
+    # do for the regression
+
+    return models, predictions

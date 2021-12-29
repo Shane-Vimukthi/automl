@@ -1,3 +1,4 @@
+import random
 import warnings
 
 import streamlit as st
@@ -6,7 +7,7 @@ import streamlit.components.v1 as stc
 warnings.filterwarnings('always')
 warnings.filterwarnings('ignore')
 import time
-
+from st_aggrid import AgGrid
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
@@ -64,7 +65,8 @@ def feat_types(df, target):
     #     do identify the target column and convert to num if categorical
 
     #     identify the ids and remove the ids
-    for col in df.columns:
+    cols_without_target = [i for i in df.columns if i not in target_cols]
+    for col in cols_without_target:
         # print(col)
         perc_unique = df[col].nunique() / len(df[col]) * 100
         if perc_unique > 97.0:  # get the ids
@@ -112,8 +114,9 @@ def cor_identifier(df, num_cols_all):
 
 
 # skewed numerical continuous columns identification
-def skew_identifier(df):
+def skew_identifier(df, target_cols):
     # start_time = time.clock()
+    df = df.drop(target_cols, 1)
     num_cols_skewed = []
     num_cols_norm = []
     df_skew = df.skew(axis =0, skipna=True)
@@ -134,14 +137,14 @@ def skew_fix(df, num_cols_skewed, num_cols_norm):
 
     # ln transformation
     for col in num_cols_skewed:
-        new_col = str(col) + '_num_cols_skewed_log'
+        new_col = str(col) + ':num_cols_skewed_log'
         df[new_col] = np.log(df[col] + 1)
         # add new colum to the new done list
         num_cols_skewed_done.append(new_col)
         # print(df.head())
     # squar root transformation
     for col in num_cols_skewed:
-        new_col = str(col) + '_num_cols_skewed_sqr'
+        new_col = str(col) + ':num_cols_skewed_sqr'
         df[new_col] = df[col] ** (1 / 2)
         num_cols_skewed_done.append(new_col)
         # print(df.head())
@@ -174,7 +177,7 @@ def outlier_identifier_fix(df, num_cols_norm, num_cols_skewed):
         if len(outliers_norm) >= 1:
             num_cols_norm_outliers.append(col)
             # fixing the outliers norm   ----------------------------------------------------------- capping
-            new_col = str(col) + '_num_cols_norm_outliers_cap'
+            new_col = str(col) + ':num_cols_norm_outliers_cap'
             df[new_col] = np.where(df[col] > upper_limit_norm, upper_limit_norm,
                                    np.where(df[col] < lower_limit_norm, lower_limit_norm, df[col]))
             num_cols_norm_outliers_done.append(new_col)
@@ -190,7 +193,7 @@ def outlier_identifier_fix(df, num_cols_norm, num_cols_skewed):
         if outliers_skew >= 1:
             num_cols_skewed_outliers.append(col)
             # fixing the outliers skewed   -------------------------------------------------------------- capping
-            new_col = str(col) + '_num_cols_skewed_outliers_cap'
+            new_col = str(col) + ':num_cols_skewed_outliers_cap'
             df[new_col] = np.where(df[col] > upper_limit_skew, upper_limit_skew,
                                    np.where(df[col] < lower_limit_skew, lower_limit_skew, df[col]))
             num_cols_skewed_outliers_done.append(new_col)
@@ -252,7 +255,7 @@ def null_fix(df,cols_null_to_del, cat_cols_obj_null, num_cols_null):
   df_null_not_del = df.copy()
   for col in cols_null_to_del:
     # create another feature wher null cols available
-    new_col = str(col)+'_to_del_null_binary'
+    new_col = str(col)+':to_del_null_binary'
     df[new_col] = np.where(df[col].isnull(), 1,0)
     col_null_to_del_done.append(new_col)
 
@@ -263,17 +266,17 @@ def null_fix(df,cols_null_to_del, cat_cols_obj_null, num_cols_null):
   for col in cat_cols_obj_null:
 
     # create another feature wher null cols available
-    new_col = str(col)+'_cat_cols_obj_null_binary'
+    new_col = str(col)+':cat_cols_obj_null_binary'
     df[new_col] = np.where(df[col].isnull(), 1,0)
     cat_cols_obj_null_done.append(new_col)
 
     # filling the null values with mode of the category
-    new_col = str(col)+'_cat_cols_obj_null_mode'
+    new_col = str(col)+':cat_cols_obj_null_mode'
     df[new_col] = df[col].fillna(df[col].mode())
     cat_cols_obj_null_done.append(new_col)
 
     # filling the null values with another category of the category
-    new_col = str(col)+'_cat_cols_obj_null_extreme'
+    new_col = str(col)+':cat_cols_obj_null_extreme'
     df[new_col] = df[col].fillna('null')
     cat_cols_obj_null_done.append(new_col)
 
@@ -281,27 +284,27 @@ def null_fix(df,cols_null_to_del, cat_cols_obj_null, num_cols_null):
   # null filling in numerical features
   for col in num_cols_null:
     # create another feature wher null cols available
-    new_col = str(col)+'_null_binary'
+    new_col = str(col)+':null_binary'
     df[new_col] = np.where(df[col].isnull(), 1,0)
     num_cols_null_done.append(new_col)
 
     # filling the null values with mode of the category
-    new_col = str(col)+'_null_mode'
+    new_col = str(col)+':null_mode'
     df[new_col] = df[col].fillna(df[col].mode())
     num_cols_null_done.append(new_col)
 
     # filling the null values with mean of the category
-    new_col = str(col)+'_null_mode'
+    new_col = str(col)+':null_mode'
     df[new_col] = df[col].fillna(df[col].mean())
     num_cols_null_done.append(new_col)
 
     # filling the null values with mean of the category
-    new_col = str(col)+'_median'
+    new_col = str(col)+':median'
     df[new_col] = df[col].fillna(df[col].median())
     num_cols_null_done.append(new_col)
 
     # filling the null values with mean of the category
-    new_col = str(col)+'_extreme'
+    new_col = str(col)+':extreme'
     max_val = df[col].max()
     df[new_col] = df[col].fillna(max_val+1000)
     num_cols_null_done.append(new_col)
@@ -361,54 +364,57 @@ def feat_encode(df, cat_cols_obj_null_done, cat_cols_obj_not_null):
 
         # create dictionary for each categorical columns
         # label encoding for all as well as if > 16 in the above case
-        new_col = str(col) + '_label'
-        df[new_col] = labelencoder.fit_transform(df[col])
+        new_col = str(col) + ':label'
+        df[new_col] = labelencoder.fit_transform(df[col].astype(str))
         col_for_one.append(new_col)
 
         #         print('col', col)
         # categorical encoding one hot encoding only if the nuniques < 16
         # one method is save the onhot df with the name and append to a df one hot list
         # two method is
-        if df[col].nunique() <= 20:
-            new_df = str(col) + '_onehot'
-            # df_sample = pd.DataFrame(df[col])
-            new_df = pd.get_dummies(df[col], drop_first=True, prefix=str(col + '_onehot'))
-            #             print('new_df', new_df)
-            df = pd.concat([df, new_df], axis=1)
-            #             print('df', df)
-            cols_new_df = new_df.columns.tolist()
-            #             print(cols_new_df)
-            col_for_one.append(cols_new_df)
-            #             print('cols_for_one', col_for_one)
+        if df[col].nunique()>2:
 
-        if df[col].nunique() != 2:
-            # effect encoding is useless at this stage
-            # effect encoding - deviation or sum encoding
-            # new_df = str(col) + '_effect'
-            # effect_encoder = ce.sum_coding.SumEncoder(cols=col, verbose=False, )
-            # new_df = effect_encoder.fit_transform(df[col])
-            # df = pd.concat([df, new_df], axis=1)
-            # cols_new_df = new_df.columns.tolist()
-            # col_for_one.append(cols_new_df)
+            if df[col].nunique() <= 10:
+                new_df = str(col) + ':onehot'
+                # df_sample = pd.DataFrame(df[col])
+                new_df = pd.get_dummies(df[col], drop_first=True, prefix=str(col + ':onehot'))
+                #             print('new_df', new_df)
+                df = pd.concat([df, new_df], axis=1)
+                #             print('df', df)
+                cols_new_df = new_df.columns.tolist()
+                #             print(cols_new_df)
+                col_for_one.append(cols_new_df)
+                #             print('cols_for_one', col_for_one)
 
-            # df[col].nunique() != 2:
-            # binary encoding where hashing is also taken
-            new_df = str(col) + '_binary'
-            bin_encoder = ce.BinaryEncoder(cols=col, return_df=True)
-            # Fit and Transform Data
-            new_df = bin_encoder.fit_transform(df[col])
-            df = pd.concat([df, new_df], axis=1)
-            cols_new_df = new_df.columns.tolist()
-            col_for_one.append(cols_new_df)
+            else:
+                # df[col].nunique() != 2:
+                # # effect encoding is useless at this stage
+                # # effect encoding - deviation or sum encoding
+                # # new_df = str(col) + '_effect'
+                # # effect_encoder = ce.sum_coding.SumEncoder(cols=col, verbose=False, )
+                # # new_df = effect_encoder.fit_transform(df[col])
+                # # df = pd.concat([df, new_df], axis=1)
+                # # cols_new_df = new_df.columns.tolist()
+                # # col_for_one.append(cols_new_df)
+                #
+                # # df[col].nunique() != 2:
+                # # binary encoding where hashing is also taken
+                # new_df = str(col) + ':binary'
+                # bin_encoder = ce.BinaryEncoder(cols=col, return_df=True)
+                # # Fit and Transform Data
+                # new_df = bin_encoder.fit_transform(df[col])
+                # df = pd.concat([df, new_df], axis=1)
+                # cols_new_df = new_df.columns.tolist()
+                # col_for_one.append(cols_new_df)
 
-            # base N encoding where in this case base is taken as 5
-            new_df = str(col) + '_base5'
-            base_encoder = ce.BaseNEncoder(cols=[col], return_df=True, base=5)
-            # Fit and Transform Data
-            new_df = base_encoder.fit_transform(df[col])
-            df = pd.concat([df, new_df], axis=1)
-            cols_new_df = new_df.columns.tolist()
-            col_for_one.append(cols_new_df)
+                # base N encoding where in this case base is taken as 5
+                new_df = str(col) + ':base5'
+                base_encoder = ce.BaseNEncoder(cols=[col], return_df=True, base=5)
+                # Fit and Transform Data
+                new_df = base_encoder.fit_transform(df[col])
+                df = pd.concat([df, new_df], axis=1)
+                cols_new_df = new_df.columns.tolist()
+                col_for_one.append(cols_new_df)
 
 
     #         added each newly changes to the dictionary
@@ -436,7 +442,7 @@ def shuffle_df(cat_cols_encoded_all_dictt, num_cols_null_done, num_cols_not_null
 
     for col in num_cols_fixed_all:
         # split to make each columns
-        col_name = str(col.split('_')[0])
+        col_name = str(col.split(':')[0])
         col_names.append(col_name)
     col_names = set(col_names)
     col_names = list(col_names)
@@ -448,11 +454,12 @@ def shuffle_df(cat_cols_encoded_all_dictt, num_cols_null_done, num_cols_not_null
     for col in num_cols_fixed_all_dict.keys():
 
         for num_col in num_cols_fixed_all:
-            col_ori = str(num_col.split('_')[0])
+            col_ori = str(num_col.split(':')[0])
             if str(col) == col_ori:
                 num_cols_fixed_all_dictt[col_ori].append(num_col)
 
     cat_cols_encoded_all_dictt.update(num_cols_fixed_all_dictt)
+    cat_num_cols_final_dict = cat_cols_encoded_all_dictt
 
     # make combinations
     allNames = sorted(cat_cols_encoded_all_dictt)
@@ -461,7 +468,7 @@ def shuffle_df(cat_cols_encoded_all_dictt, num_cols_null_done, num_cols_not_null
 
 
 
-    return combinations
+    return combinations, cat_num_cols_final_dict
 
 
 
@@ -476,6 +483,7 @@ def prep_data(df, target_variable):
 
     # print the columns details of the dataset where numerical categorical and targets
     st.subheader('\n\n Feature Types based on the Values')
+    df_ori = df.copy()
     df, id_cols, target_cols, cat_cols_obj, num_cols_all = feat_types(df, target_variable)
     st.write('Target Columns :   ', *target_cols)
     st.write('ID Columns :   ', (', '.join(id_cols)))
@@ -492,7 +500,7 @@ def prep_data(df, target_variable):
 
     # Skewed Continuous Features identification and treatment
     st.subheader('\n\n Skewed Features and Normal Distributed Features')
-    num_cols_skewed, num_cols_norm = skew_identifier(df)
+    num_cols_skewed, num_cols_norm = skew_identifier(df,target_cols)
     st.write('Numerical Skewed Columns :   ', (', '.join(num_cols_skewed)))
     st.write('Numerical Normaly Distributed Columns :   ', (', '.join(num_cols_norm)))
 
@@ -529,17 +537,20 @@ def prep_data(df, target_variable):
     df, num_cols_null_done, cat_cols_obj_null_done, col_null_to_del_done = null_fix(df, cols_null_to_del, cat_cols_obj_null, num_cols_null)
     # st.write('Null Columns are fixed with Mode, Median, Mean, added null column, extreme values')
     # st.dataframe(df)
-
+    st.write('Categorical Columns Null fixed ', cat_cols_obj_null_done)
+    st.write('Categorical Columns Null fixed ', cat_cols_obj_not_null)
+    # st.write(df.info())
 
 
     # Categorical Feature Encoding
     st.subheader('\n\n Categorical Columns Convertion to Numerical')
     # df, cat_cols_obj_all_done, cat_cols_obj_onehot_df_done, cat_cols_obj_all_effect_df_done,\
     df, cat_cols_encoded_all_dict, cat_cols_encoded_all_dictt = feat_encode(df, cat_cols_obj_null_done, cat_cols_obj_not_null)
-    combinations = shuffle_df(cat_cols_encoded_all_dictt, num_cols_null_done, num_cols_not_null, col_null_to_del_done)
+    combinations, cat_num_cols_final_dict = shuffle_df(cat_cols_encoded_all_dictt, num_cols_null_done, num_cols_not_null, col_null_to_del_done)
     st.write('Categorical Columns Converted to Numerical')
     # st.write('Categorical Columns Null fixed ', cat_cols_obj_null_done)
     # st.write('Categorical Columns Null fixed ', cat_cols_obj_not_null)
+    # st.write('categorical columns all ', cat_cols_obj_all)
     st.write(cat_cols_encoded_all_dictt)
     # st.write(combinations)
     # st.dataframe(df.head())
@@ -556,14 +567,67 @@ def prep_data(df, target_variable):
     st.write('Numerical Null Columns done :   ', (', '.join(num_cols_null_done)))
     st.write('Categorical Null Columns done :   ', (', '.join(cat_cols_obj_null_done)))
     st.write('To delete  Null Columns done :   ', (', '.join(col_null_to_del_done)))
-
+    # df.to_csv('final_all_df.csv', index=False)
 
     all_columns_before= cat_cols_obj_null_done + cat_cols_obj_not_null + num_cols_null_done + num_cols_not_null + col_null_to_del_done
+    all_columns_before= df.columns.values.tolist()
+    all_columns_before = [i for i in all_columns_before if i not in target_cols]
     st.write('All the Colums/Features before cat encoding: ', (', '.join(all_columns_before)) )
+    st.dataframe(df.head())
     # all_columns_= cat_cols_obj_null_done + cat_cols_obj_not_null + num_cols_null_done
-    st.write('all the combinations: ',combinations)
-    st.write('combinations length: ', len(combinations))
+    # st.write('all the combinations: ',combinations)
+    st.write('Number of Combinations make from the features : ', len(combinations))
+
+    # selecting the datasets
+    st.subheader('\n\n Select the Dataset')
+    st.write('\n For Random Datasets Select Random Button and For Custom Dataset Select Custom Button with columns')
+
+    dataset_select = st.radio('Select Your Choice for Dataset',('Create Random Datasets', 'Create a Customized Dataset'))
+
+    if dataset_select == 'Create Random Datasets':
+        st.write('Select the Number of Random Datasets to Create')
+        # if len(combinations) > 10:
+        #     random_dataset_limit=1
+        # else:
+        #     random_dataset_limit = len(combinations)
+        random_datasets = 1
+        # random_datasets = st.slider('Adjust the slider to get number of datasets',1, random_dataset_limit, 1)
+        st.write(random_datasets, ' Random Datasets Will be Created')
+        random_dataset_cols = random.sample(combinations, random_datasets)
+        # view_random_dataset = st.checkbox('View Random Datasets', value=False)
+        # if view_random_dataset:
+        #     st.write('Random Dataframes')
+        for a,i in enumerate(random_dataset_cols):
+            i = list(i)
+            flatten_i = lambda *n: (e for a in n for e in (flatten_i(*a) if isinstance(a, (tuple, list)) else (a,)))
+            i = list(flatten_i(i))
+            df = df[i]
+            df = pd.concat([df, df_ori[target_cols]], axis=1)
+            # df = df[i]
+            # df_random_dataset.to_csv('df_random_dataset' + str(a) +'.csv')
+            # st.dataframe(df.head())
 
 
 
 
+    elif dataset_select == 'Create a Customized Dataset':
+        st.write("Please Select the Columns for the Dataset")
+        customized_cols = st.multiselect('Select the Columns ', all_columns_before)
+        st.write('Selected Columns: ', (',  '.join(customized_cols)))
+        # view_custom_dataset = st.checkbox('View The Customized Dataset', value=False)
+        # if view_custom_dataset:
+        #     st.write('Customized DataFrame')
+        df = df[customized_cols]
+        df = pd.concat([df, df_ori[target_cols]], axis=1)
+            # st.dataframe(df.head())
+
+
+    return df
+
+    # if st.button('Save&Build Models'):
+    #     st.write('hi we click here')
+
+    # if st.button('Save Datasets Only'):
+    #     st.write('Save')
+    #     df_customized.to_csv().encode('utf-8')
+    #     st.download_button(label='Download the Dataset as CSV', data=df_customized, file_name='Custom.csv', mime='text/csv')
