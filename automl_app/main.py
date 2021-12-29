@@ -243,7 +243,7 @@ def main():
                 if target_model == 'Try All Models':
 
                     st.subheader('All Classification/Binary Models with Scores')
-                    models, predictions = model_lazy_pred(df, target_variable,target_type, target_model)
+                    models, predictions = model_lazy_pred(df, target_variable,target_type)
                     st.write(models)
 
                     st.subheader('Histogram for Scores Models')

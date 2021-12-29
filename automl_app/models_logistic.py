@@ -90,7 +90,7 @@ def result_grid_search(model, param_grid, df, target_variable, target_type, rand
         return best_estimator, best_score
 
     else:
-        grid = GridSearchCV(model, param_grid, cv=5, scoring=score, verbose=3, n_jobs=-1)
+        grid = GridSearchCV(model, param_grid, cv=5, verbose=3, n_jobs=-1)
         grid.fit(X_trn, df[target_variable])
         best_estimator = grid.best_estimator_
         best_score = grid.best_score_
@@ -273,14 +273,25 @@ def logistic_reg_models(df, target_variable, class_model, target_type):
                 # st.write('train set', train_df)
                 # st.write('test set', test_df)
                 # st.write('features', features)
-                oofs_lr, preds_lr, clf_lr, oofs_rf_score, c_mat_lr = run_clf_kfold(best_estimator_rf, train_df, test_df, features,target_variable, target_type)
+                oofs_lr, preds_lr, clf_lr, oofs_rf_score = run_clf_kfold(best_estimator_rf,train_df, test_df, features, target_variable, target_type)
                 st.subheader('Final Average Score for the Kfold Cross Validation')
                 st.write(oofs_rf_score)
 
-                st.subheader('Confusion Matrix Heatmap')
-                fig2 = sns.heatmap(c_mat_lr, annot=True)
-                # plot_confusion_matrix(clf, X_test, y_test)
-                st.plotly_chart(fig2)
+                st.subheader('Histogram for Feature Importance in LogisticRegression Model')
+                feature_importance = abs(clf_lr.coef_[0])
+                feature_importance = 100.0 * (feature_importance / feature_importance.max())
+                sorted_idx = np.argsort(feature_importance)
+                pos = np.arange(sorted_idx.shape[0]) + .5
+
+                featfig = plt.figure()
+                featax = featfig.add_subplot(1, 1, 1)
+                featax.barh(pos, feature_importance[sorted_idx], align='center')
+                featax.set_yticks(pos)
+                featax.set_yticklabels(np.array(features)[sorted_idx], fontsize=8)
+                featax.set_xlabel('Relative Feature Importance')
+
+                st.plotly_chart(featfig)
+
 
                 with open('outputs/final_model.pkl', 'rb') as file:
                     st.download_button('Download Model as pkl', file, file_name='Final_model.pkl')
