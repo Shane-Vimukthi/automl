@@ -147,12 +147,6 @@ def prep_eda(df, target_variable, target_type):
     st.write(corr_df)
     st.caption('*If the Target Variable is correlated with itself please ignore')
 
-    # plot the datset
-    # st.subheader('\n\n Pairplot For all Numerical Features')
-    # fig = sns.pairplot(df, hue= target_variable)
-    # st.pyplot(fig)
-
-
     # line and area plot of the all numericals
     st.subheader('\n\n Numerical Columns Line Chart')
     st.line_chart(df[cor_cols])
@@ -182,6 +176,7 @@ def prep_eda(df, target_variable, target_type):
         # px.histogram(df,x=k)
         sns.kdeplot(x=k, data=df, ax=axes[1], fill=True)
         sns.boxplot(data=df, ax=axes[2], x=k)
+        # plt.title()
         plt.tight_layout()
         st.pyplot(fig)
         # st.plotly_chart(fig)
@@ -196,5 +191,8 @@ def prep_eda(df, target_variable, target_type):
         sns.countplot(x=i, data=df, ax=axes[1])
         st.pyplot(fig)
 
-
-    st.subheader('\n\n Plotly Customized Plots')
+    # plot the datset
+    st.subheader('\n\n Pairplot For all Numerical Features')
+    fig = sns.pairplot(df, hue= target_variable)
+    st.pyplot(fig)
+    # st.subheader('\n\n Plotly Customized Plots')

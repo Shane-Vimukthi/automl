@@ -59,7 +59,7 @@ def cross_val(target_type, y_true, y_pred):
     if target_type == 'Classification':
         return accuracy_score(y_true, y_pred)
     else:
-        return 1000 * np.sqrt(mean_squared_error(y_true, y_pred))
+        return np.sqrt(mean_squared_error(y_true, y_pred))
 
 
 

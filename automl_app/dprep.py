@@ -49,21 +49,14 @@ from sklearn.model_selection import RandomizedSearchCV
 
 # find the colum types if num/cat/target/id cols
 def feat_types(df, target):
-    # start_time = time.clock()
-
     id_cols = []
     # target_cols = []
     cat_cols_obj = []
     num_cols_all = []
-
     #     identify the target column and remove in this function
     target_cols = [target]
     df_original = df.copy()
-
-    # df.drop([target], axis=1, inplace=True)  # remove the target column from the dataset
-
     #     do identify the target column and convert to num if categorical
-
     #     identify the ids and remove the ids
     cols_without_target = [i for i in df.columns if i not in target_cols]
     for col in cols_without_target:
@@ -75,19 +68,6 @@ def feat_types(df, target):
             cat_cols_obj.append(col)
         else:
             num_cols_all.append(col)  # get all the other int and float numericals
-
-    ''' this cat variable identification is kept as a feature engineering method in the other modules
-        for col in num_cols_all():
-          if 10 > df_copy.col.nunique() > 2:
-            num_cols_cat.append(col)
-          else:
-            num_cols_cont.append(col)'''
-
-    # identify the cat cols in the numerical all columns in other words identify the discrete and continuous
-    # num_cols_all = [i for i in df_copy.columns if i not in [target_col] and i not in id_cols and i not in cat_obj_cols]
-
-    # print(time.clock() - start_time, "seconds took to finish dtype identifier")
-
     return df, id_cols, target_cols, cat_cols_obj, num_cols_all
 
 
@@ -150,24 +130,15 @@ def skew_fix(df, num_cols_skewed, num_cols_norm):
         # print(df.head())
 
     num_cols_norm = num_cols_norm + num_cols_skewed_done
-
-    # boxcox transformation
-    # for col in num_cols_skewed:
-    #   df[str(col)+'_num_cols_skewd'+'_boxcox'] = boxcox(df[col], lambda = None)
-    # df = pd.DataFrame()
-    # print(time.clock() - start_time, "seconds took to finish skew fix")
     return df, num_cols_skewed_done, num_cols_norm
 
 
 # Outlier Identification and Treatment function
 def outlier_identifier_fix(df, num_cols_norm, num_cols_skewed):
-    # start_time = time.clock()
     num_cols_norm_outliers = []
     num_cols_skewed_outliers = []
     num_cols_norm_outliers_done = []
     num_cols_skewed_outliers_done = []
-    # num_cols_skewed_done_outliers = [] skewed done means they are normal so add to the normal list
-    # num_cols_skewed_done_outliers_done = []
 
     # outliers which follow the normal distribution
     for col in num_cols_norm:
@@ -181,8 +152,7 @@ def outlier_identifier_fix(df, num_cols_norm, num_cols_skewed):
             df[new_col] = np.where(df[col] > upper_limit_norm, upper_limit_norm,
                                    np.where(df[col] < lower_limit_norm, lower_limit_norm, df[col]))
             num_cols_norm_outliers_done.append(new_col)
-
-        # outliers which are skewed
+    # outliers which are skewed
     for col in num_cols_skewed:
         q1 = df[col].quantile(0.25)
         q3 = df[col].quantile(0.75)
@@ -199,9 +169,6 @@ def outlier_identifier_fix(df, num_cols_norm, num_cols_skewed):
             num_cols_skewed_outliers_done.append(new_col)
 
     num_cols_norm = num_cols_norm + num_cols_norm_outliers_done + num_cols_skewed_outliers_done
-
-    # print(time.clock() - start_time, "seconds took to finish outlier identifier and fix")
-
     return df, num_cols_skewed_outliers, num_cols_norm_outliers, num_cols_norm_outliers_done, num_cols_skewed_outliers_done, num_cols_norm
 
 
@@ -294,7 +261,7 @@ def null_fix(df,cols_null_to_del, cat_cols_obj_null, num_cols_null):
     num_cols_null_done.append(new_col)
 
     # filling the null values with mean of the category
-    new_col = str(col)+':null_mode'
+    new_col = str(col)+':null_mean'
     df[new_col] = df[col].fillna(df[col].mean())
     num_cols_null_done.append(new_col)
 
@@ -360,53 +327,21 @@ def feat_encode(df, cat_cols_obj_null_done, cat_cols_obj_not_null):
         col_for_one = []
 
         col_ori = str(col.split('_')[0])
-        #         cat_cols_encoded_all_dictt = {}
-
-        # create dictionary for each categorical columns
-        # label encoding for all as well as if > 16 in the above case
         new_col = str(col) + ':label'
         df[new_col] = labelencoder.fit_transform(df[col].astype(str))
         col_for_one.append(new_col)
 
-        #         print('col', col)
-        # categorical encoding one hot encoding only if the nuniques < 16
-        # one method is save the onhot df with the name and append to a df one hot list
-        # two method is
         if df[col].nunique()>2:
 
             if df[col].nunique() <= 10:
                 new_df = str(col) + ':onehot'
                 # df_sample = pd.DataFrame(df[col])
                 new_df = pd.get_dummies(df[col], drop_first=True, prefix=str(col + ':onehot'))
-                #             print('new_df', new_df)
                 df = pd.concat([df, new_df], axis=1)
-                #             print('df', df)
                 cols_new_df = new_df.columns.tolist()
-                #             print(cols_new_df)
                 col_for_one.append(cols_new_df)
-                #             print('cols_for_one', col_for_one)
 
             else:
-                # df[col].nunique() != 2:
-                # # effect encoding is useless at this stage
-                # # effect encoding - deviation or sum encoding
-                # # new_df = str(col) + '_effect'
-                # # effect_encoder = ce.sum_coding.SumEncoder(cols=col, verbose=False, )
-                # # new_df = effect_encoder.fit_transform(df[col])
-                # # df = pd.concat([df, new_df], axis=1)
-                # # cols_new_df = new_df.columns.tolist()
-                # # col_for_one.append(cols_new_df)
-                #
-                # # df[col].nunique() != 2:
-                # # binary encoding where hashing is also taken
-                # new_df = str(col) + ':binary'
-                # bin_encoder = ce.BinaryEncoder(cols=col, return_df=True)
-                # # Fit and Transform Data
-                # new_df = bin_encoder.fit_transform(df[col])
-                # df = pd.concat([df, new_df], axis=1)
-                # cols_new_df = new_df.columns.tolist()
-                # col_for_one.append(cols_new_df)
-
                 # base N encoding where in this case base is taken as 5
                 new_df = str(col) + ':base5'
                 base_encoder = ce.BaseNEncoder(cols=[col], return_df=True, base=5)
@@ -469,14 +404,6 @@ def shuffle_df(cat_cols_encoded_all_dictt, num_cols_null_done, num_cols_not_null
 
 
     return combinations, cat_num_cols_final_dict
-
-
-
-def save_files(df, ):
-    pass
-
-
-
 
 
 def prep_data(df, target_variable):
@@ -575,59 +502,40 @@ def prep_data(df, target_variable):
     st.write('All the Colums/Features before cat encoding: ', (', '.join(all_columns_before)) )
     st.dataframe(df.head())
     # all_columns_= cat_cols_obj_null_done + cat_cols_obj_not_null + num_cols_null_done
-    # st.write('all the combinations: ',combinations)
+    st.subheader('All the Combinations/Datasets')
     st.write('Number of Combinations make from the features : ', len(combinations))
+    view_combinations = st.checkbox('View all the Datasets', value=False)
+    if view_combinations:
+        # st.write('Customized DataFrame')
+        # df = df[customized_cols]
+        st.write(combinations[0:50])
 
     # selecting the datasets
     st.subheader('\n\n Select the Dataset')
     st.write('\n For Random Datasets Select Random Button and For Custom Dataset Select Custom Button with columns')
-
     dataset_select = st.radio('Select Your Choice for Dataset',('Create Random Datasets', 'Create a Customized Dataset'))
 
     if dataset_select == 'Create Random Datasets':
         st.write('Select the Number of Random Datasets to Create')
-        # if len(combinations) > 10:
-        #     random_dataset_limit=1
-        # else:
-        #     random_dataset_limit = len(combinations)
         random_datasets = 1
-        # random_datasets = st.slider('Adjust the slider to get number of datasets',1, random_dataset_limit, 1)
         st.write(random_datasets, ' Random Datasets Will be Created')
         random_dataset_cols = random.sample(combinations, random_datasets)
-        # view_random_dataset = st.checkbox('View Random Datasets', value=False)
-        # if view_random_dataset:
-        #     st.write('Random Dataframes')
+
         for a,i in enumerate(random_dataset_cols):
             i = list(i)
             flatten_i = lambda *n: (e for a in n for e in (flatten_i(*a) if isinstance(a, (tuple, list)) else (a,)))
             i = list(flatten_i(i))
             df = df[i]
             df = pd.concat([df, df_ori[target_cols]], axis=1)
-            # df = df[i]
-            # df_random_dataset.to_csv('df_random_dataset' + str(a) +'.csv')
-            # st.dataframe(df.head())
-
-
-
 
     elif dataset_select == 'Create a Customized Dataset':
         st.write("Please Select the Columns for the Dataset")
         customized_cols = st.multiselect('Select the Columns ', all_columns_before)
         st.write('Selected Columns: ', (',  '.join(customized_cols)))
-        # view_custom_dataset = st.checkbox('View The Customized Dataset', value=False)
-        # if view_custom_dataset:
-        #     st.write('Customized DataFrame')
         df = df[customized_cols]
         df = pd.concat([df, df_ori[target_cols]], axis=1)
-            # st.dataframe(df.head())
+
 
 
     return df
 
-    # if st.button('Save&Build Models'):
-    #     st.write('hi we click here')
-
-    # if st.button('Save Datasets Only'):
-    #     st.write('Save')
-    #     df_customized.to_csv().encode('utf-8')
-    #     st.download_button(label='Download the Dataset as CSV', data=df_customized, file_name='Custom.csv', mime='text/csv')

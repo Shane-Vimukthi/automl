@@ -77,16 +77,6 @@ def result_grid_search(model, param_grid, df, target_variable, target_type, rand
         score = mean_squared_error
     else:
         score = accuracy_score
-    # score = 'neg_mean_squared_log_error'
-    # neg_mean_squared_log_error, neg_root_mean_squared_error
-    # iterations = 10
-    # define the scoreing metric
-    # ‘roc_auc’ = metrics.roc_auc_score
-    # ‘f1’ = metrics.f1_score
-    # ‘accuracy’= metrics.accuracy_score
-    # ‘neg_root_mean_squared_error’=metrics.mean_squared_error
-    # ‘neg_mean_squared_log_error’=metrics.mean_squared_log_error
-    # ‘neg_root_mean_squared_error’=metrics.mean_squared_error
     lb_make = LabelEncoder()
     df[target_variable] = lb_make.fit_transform(df[target_variable])
 
