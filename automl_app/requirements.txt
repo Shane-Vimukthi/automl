@@ -134,7 +134,6 @@ tensorboard-plugin-wit==1.6.0.post3
 termcolor==1.1.0
 terminado==0.11.0
 testpath==0.5.0
-textblob==0.15.3
 thinc==7.1.1
 toml==0.10.1
 toolz==0.11.1
