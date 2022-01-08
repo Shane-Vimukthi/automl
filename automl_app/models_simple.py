@@ -19,29 +19,29 @@ import numpy as np
 import pandas as pd
 # %matplotlib inline
 plt.style.use('seaborn-whitegrid')
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-import category_encoders as ce
-import os
-from collections import defaultdict
-from sklearn.model_selection import train_test_split
+# from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+# import category_encoders as ce
+# import os
+# from collections import defaultdict
+# from sklearn.model_selection import train_test_split
 
 
-import seaborn as sns
+# import seaborn as sns
 from sklearn.model_selection import train_test_split, StratifiedKFold
-from sklearn.metrics import accuracy_score, f1_score
+# from sklearn.metrics import accuracy_score, f1_score
+#
+# from sklearn.tree import DecisionTreeClassifier
+# from sklearn.ensemble import RandomForestClassifier
+#
+# from sklearn.linear_model import LogisticRegression
+# import joblib
 
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-
-from sklearn.linear_model import LogisticRegression
-import joblib
-
-# from lightgbm import LGBMClassifier
-# # from catboost import CatBoostClassifier
-# from xgboost import XGBClassifier
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-import category_encoders as ce
-import os
+# # from lightgbm import LGBMClassifier
+# # # from catboost import CatBoostClassifier
+# # from xgboost import XGBClassifier
+# from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+# import category_encoders as ce
+# import os
 from IPython.core.interactiveshell import InteractiveShell
 InteractiveShell.ast_node_interactivity = "all"
 
@@ -49,7 +49,7 @@ pd.set_option('display.max_colwidth', -1)
 
 import warnings
 warnings.simplefilter('ignore')
-from sklearn.model_selection import RandomizedSearchCV
+# from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import mean_squared_error, mean_squared_log_error, accuracy_score
 
 

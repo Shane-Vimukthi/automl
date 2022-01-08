@@ -57,7 +57,7 @@ def download_model(model):
     # filename = 'finalized_model.sav'
     # joblib.dump(model, filename)
     # pickle_out = open('model.pkl', model='wb')
-    model_name = 'outputs/final_model.pkl'
+    model_name = 'final_model.pkl'
     pickle.dump(model, open(model_name, 'wb'))
     # pickle_out.close()
     # return model_out
