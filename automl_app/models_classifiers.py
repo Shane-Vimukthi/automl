@@ -57,7 +57,7 @@ def download_model(model):
     # filename = 'finalized_model.sav'
     # joblib.dump(model, filename)
     # pickle_out = open('model.pkl', model='wb')
-    model_name = 'outputs/final_model.pkl'
+    model_name = 'final_model.pkl'
     pickle.dump(model, open(model_name, 'wb'))
     # pickle_out.close()
     # return model_out
@@ -467,5 +467,5 @@ def classifiers_models(df, target_variable, class_model, target_type):
                               orientation='h', labels=dict(x="Feature Importance", y="Features"))
                 st.plotly_chart(fig2)
 
-                with open('outputs/final_model.pkl', 'rb') as file:
+                with open('final_model.pkl', 'rb') as file:
                     st.download_button('Download Model as pkl', file, file_name='Final_model.pkl')
